@@ -1,0 +1,29 @@
+name: Main
+
+on: push
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: aboutbits/github-actions-java/setup-with-maven@v4
+        with:
+          java-version: 25
+      - name: Test
+        env:
+          GITHUB_USER_NAME: ${{ github.actor }}
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >-
+          ./mvnw
+          -s $GITHUB_WORKSPACE/.github/workflows/maven-settings.xml
+          --batch-mode
+          --fail-fast
+          -Dsurefire.failIfNoSpecifiedTests=false
+          test
+        shell: bash
