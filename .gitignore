@@ -1,0 +1,48 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+.idea/*
+!.idea/codeStyles
+!.idea/.gitignore
+!.idea/checkstyle-idea.xml
+!.idea/encodings.xml
+!.idea/misc.xml
+!.idea/sqldialects.xml
+!.idea/vcs.xml
+
+*.iml
+*.ipr
+*.iws
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Mac ###
+.DS_Store
+
+### Local Development ###
+application-local.yml
