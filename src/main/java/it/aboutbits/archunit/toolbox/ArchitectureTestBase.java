@@ -4,22 +4,13 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.junit.ArchIgnore;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName;
-import it.aboutbits.archunit.toolbox.support.ArchIgnoreNoProductionCounterpart;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.NullUnmarked;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -80,7 +71,7 @@ public abstract class ArchitectureTestBase {
                     "org.junit.Ignore",
                     "org.junit.Rule",
                     "org.junit.Test",
-                    //  (allowed is only org.jspecify.annotations.NonNull)
+                    // @NonNull (allowed is only org.jspecify.annotations.NonNull)
                     "lombok.NonNull",
                     "edu.umd.cs.findbugs.annotations.NonNull",
                     "io.micrometer.common.lang.NonNull",
@@ -138,7 +129,7 @@ public abstract class ArchitectureTestBase {
     @ArchTest
     static final ArchRule nested_test_classes_must_be_package_private = classes()
             .that()
-            .areAnnotatedWith(Nested.class)
+            .areAnnotatedWith(org.junit.jupiter.api.Nested.class)
             .should()
             .bePackagePrivate()
             .allowEmptyShould(true);
@@ -147,13 +138,13 @@ public abstract class ArchitectureTestBase {
     @ArchTest
     static final ArchRule test_methods_must_be_package_private = methods()
             .that()
-            .areAnnotatedWith(Test.class)
+            .areAnnotatedWith(org.junit.jupiter.api.Test.class)
             .or()
-            .areAnnotatedWith(RepeatedTest.class)
+            .areAnnotatedWith(org.junit.jupiter.api.RepeatedTest.class)
             .or()
-            .areAnnotatedWith(ParameterizedTest.class)
+            .areAnnotatedWith(org.junit.jupiter.params.ParameterizedTest.class)
             .or()
-            .areAnnotatedWith(ArchTest.class)
+            .areAnnotatedWith(com.tngtech.archunit.junit.ArchTest.class)
             .should()
             .bePackagePrivate();
 
@@ -164,11 +155,11 @@ public abstract class ArchitectureTestBase {
                 .and()
                 .doNotHaveSimpleName("ArchitectureTest")
                 .and()
-                .areNotAnnotatedWith(Disabled.class)
+                .areNotAnnotatedWith(org.junit.jupiter.api.Disabled.class)
                 .and()
-                .areNotAnnotatedWith(ArchIgnore.class)
+                .areNotAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
                 .and()
-                .areNotAnnotatedWith(ArchIgnoreNoProductionCounterpart.class)
+                .areNotAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreNoProductionCounterpart.class)
                 .and()
                 .resideOutsideOfPackages(".._support..", ".._config..")
                 .should(beInTheSamePackageAsProductionClass(classes))
@@ -181,9 +172,9 @@ public abstract class ArchitectureTestBase {
         classes().that()
                 .haveNameMatching(getTestClassRegex())
                 .and()
-                .areNotAnnotatedWith(Disabled.class)
+                .areNotAnnotatedWith(org.junit.jupiter.api.Disabled.class)
                 .and()
-                .areNotAnnotatedWith(ArchIgnore.class)
+                .areNotAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
                 .should(nestedClassesMatchProdMethodName(classes))
                 .allowEmptyShould(true)
                 .check(classes);
@@ -334,9 +325,9 @@ public abstract class ArchitectureTestBase {
             .and()
             .areNotAnnotations()
             .should()
-            .beAnnotatedWith(NullMarked.class)
+            .beAnnotatedWith(org.jspecify.annotations.NullMarked.class)
             .orShould()
-            .beAnnotatedWith(NullUnmarked.class);
+            .beAnnotatedWith(org.jspecify.annotations.NullUnmarked.class);
 
     /* ****************************************************************** */
 
@@ -380,8 +371,8 @@ public abstract class ArchitectureTestBase {
                         .getClasses()
                         .stream()
                         .filter(clazz -> clazz.getName().startsWith(testClass.getName() + "$")
-                                && clazz.isAnnotatedWith(Nested.class)
-                                && !clazz.isAnnotatedWith(ArchIgnoreGroupName.class)
+                                && clazz.isAnnotatedWith(org.junit.jupiter.api.Nested.class)
+                                && !clazz.isAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
                                 && !clazz.getName().endsWith("$Validation")
                         )
                         .collect(Collectors.toSet());
@@ -410,8 +401,8 @@ public abstract class ArchitectureTestBase {
                             .getClasses()
                             .stream()
                             .anyMatch(clazz -> clazz.getName().startsWith(nestedClass.getName() + "$")
-                                    && clazz.isAnnotatedWith(Nested.class)
-                                    && !clazz.isAnnotatedWith(ArchIgnoreGroupName.class)
+                                    && clazz.isAnnotatedWith(org.junit.jupiter.api.Nested.class)
+                                    && !clazz.isAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
                                     && !clazz.getName().endsWith("$Validation")
                             )
                     ) {
