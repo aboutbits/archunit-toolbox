@@ -30,15 +30,6 @@ public abstract class ArchitectureTestBase {
                     "org.assertj.core.api.Assertions.assertThatThrownBy",
                     "org.junit.jupiter.api.Assertions.assertThrows",
                     "org.junit.jupiter.api.Assertions.assertDoesNotThrow",
-                    "org.junit.jupiter.api.Assertions.assertTrue",
-                    "org.junit.jupiter.api.Assertions.assertFalse",
-                    "org.junit.jupiter.api.Assertions.assertEquals",
-                    "org.junit.jupiter.api.Assertions.assertNotEquals",
-                    "org.junit.jupiter.api.Assertions.assertNull",
-                    "org.junit.jupiter.api.Assertions.assertNotNull",
-                    "org.junit.jupiter.api.Assertions.assertArrayEquals",
-                    "org.junit.jupiter.api.Assertions.assertIterableEquals",
-                    "org.junit.jupiter.api.Assertions.assertInstanceOf",
                     // assertThat (allowed is only org.assertj.core.api.Assertions.assertThat)
                     "org.assertj.core.api.AssertionsForClassTypes.assertThat",
                     "org.assertj.core.api.AssertionsForClassTypes.assertThatCode",
@@ -60,6 +51,16 @@ public abstract class ArchitectureTestBase {
                     "org.junit.Assert.assertThrows",
                     "org.junit.Assert.assertTrue",
                     "org.junit.Assert.fail",
+                    // use assertThat (org.assertj.core.api.Assertions.assertThat)
+                    "org.junit.jupiter.api.Assertions.assertArrayEquals",
+                    "org.junit.jupiter.api.Assertions.assertEquals",
+                    "org.junit.jupiter.api.Assertions.assertFalse",
+                    "org.junit.jupiter.api.Assertions.assertInstanceOf",
+                    "org.junit.jupiter.api.Assertions.assertIterableEquals",
+                    "org.junit.jupiter.api.Assertions.assertNotEquals",
+                    "org.junit.jupiter.api.Assertions.assertNotNull",
+                    "org.junit.jupiter.api.Assertions.assertNull",
+                    "org.junit.jupiter.api.Assertions.assertTrue",
                     "org.testcontainers.shaded.org.hamcrest.MatcherAssert.assertThat"
             )
     );
