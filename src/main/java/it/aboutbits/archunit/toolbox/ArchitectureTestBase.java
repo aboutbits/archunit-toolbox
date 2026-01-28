@@ -9,6 +9,9 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 
@@ -24,6 +27,25 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 @Slf4j
 @NullMarked
 public abstract class ArchitectureTestBase {
+    protected static final Features FEATURES = new Features();
+
+    @Setter
+    @Getter
+    @Accessors(fluent = true)
+    protected static class Features {
+        private Features.State blacklistMethods = Features.State.ENABLED;
+        private Features.State blacklistClasses = Features.State.ENABLED;
+        private Features.State blacklistAnnotations = Features.State.ENABLED;
+        private Features.State enforceJspecify = Features.State.ENABLED;
+
+        protected Features() {
+        }
+
+        public enum State {
+            ENABLED, DISABLED
+        }
+    }
+
     protected static final Set<String> BLACKLISTED_METHODS = new HashSet<>(
             Set.of(
                     // We should use `assertThatExceptionOfType(...).isThrownBy(...)` instead of `assertThatThrownBy(...)`
@@ -194,152 +216,160 @@ public abstract class ArchitectureTestBase {
 
     @SuppressWarnings("unused")
     @ArchTest
-    static final ArchRule no_blacklisted_methods_are_used = classes()
-            .should(new ArchCondition<>("not use blacklisted methods or statically import them") {
-                @Override
-                public void check(JavaClass javaClass, ConditionEvents events) {
-                    // Check all method calls from this class
-                    for (var method : javaClass.getMethods()) {
-                        for (var methodCall : method.getMethodCallsFromSelf()) {
-                            var fullMethodName = "%s.%s".formatted(
-                                    methodCall.getTargetOwner().getFullName(),
-                                    methodCall.getTarget().getName()
-                            );
+    static final ArchRule no_blacklisted_methods_are_used = FEATURES.blacklistMethods() == Features.State.DISABLED
+            ? new InnertRule()
+            : classes()
+                    .should(new ArchCondition<>("not use blacklisted methods or statically import them") {
+                        @Override
+                        public void check(JavaClass javaClass, ConditionEvents events) {
+                            // Check all method calls from this class
+                            for (var method : javaClass.getMethods()) {
+                                for (var methodCall : method.getMethodCallsFromSelf()) {
+                                    var fullMethodName = "%s.%s".formatted(
+                                            methodCall.getTargetOwner().getFullName(),
+                                            methodCall.getTarget().getName()
+                                    );
 
-                            if (BLACKLISTED_METHODS.contains(fullMethodName)) {
-                                var message = String.format(
-                                        "Method %s calls blacklisted method %s (%s.java:%d)",
-                                        method.getFullName(),
-                                        fullMethodName,
-                                        javaClass.getSimpleName(),
-                                        methodCall.getSourceCodeLocation().getLineNumber()
-                                );
-                                events.add(SimpleConditionEvent.violated(method, message));
+                                    if (BLACKLISTED_METHODS.contains(fullMethodName)) {
+                                        var message = String.format(
+                                                "Method %s calls blacklisted method %s (%s.java:%d)",
+                                                method.getFullName(),
+                                                fullMethodName,
+                                                javaClass.getSimpleName(),
+                                                methodCall.getSourceCodeLocation().getLineNumber()
+                                        );
+                                        events.add(SimpleConditionEvent.violated(method, message));
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                    // Check static initializers for method calls
-                    javaClass.getStaticInitializer().ifPresent(staticInitializer -> {
-                        for (var methodCall : staticInitializer.getMethodCallsFromSelf()) {
-                            var fullMethodName = "%s.%s".formatted(
-                                    methodCall.getTargetOwner().getFullName(),
-                                    methodCall.getTarget().getName()
-                            );
+                            // Check static initializers for method calls
+                            javaClass.getStaticInitializer().ifPresent(staticInitializer -> {
+                                for (var methodCall : staticInitializer.getMethodCallsFromSelf()) {
+                                    var fullMethodName = "%s.%s".formatted(
+                                            methodCall.getTargetOwner().getFullName(),
+                                            methodCall.getTarget().getName()
+                                    );
 
-                            if (BLACKLISTED_METHODS.contains(fullMethodName)) {
-                                var message = String.format(
-                                        "Static initializer in %s calls blacklisted method %s (%s.java:%d)",
-                                        javaClass.getFullName(),
-                                        fullMethodName,
-                                        javaClass.getSimpleName(),
-                                        methodCall.getSourceCodeLocation().getLineNumber()
-                                );
-                                events.add(SimpleConditionEvent.violated(staticInitializer, message));
-                            }
+                                    if (BLACKLISTED_METHODS.contains(fullMethodName)) {
+                                        var message = String.format(
+                                                "Static initializer in %s calls blacklisted method %s (%s.java:%d)",
+                                                javaClass.getFullName(),
+                                                fullMethodName,
+                                                javaClass.getSimpleName(),
+                                                methodCall.getSourceCodeLocation().getLineNumber()
+                                        );
+                                        events.add(SimpleConditionEvent.violated(staticInitializer, message));
+                                    }
+                                }
+                            });
                         }
                     });
-                }
-            });
 
     @SuppressWarnings("unused")
     @ArchTest
-    static final ArchRule no_blacklisted_annotations_are_used = classes()
-            .should(new ArchCondition<>(
-                    "not use blacklisted annotations on classes, methods, method parameters, or fields"
-            ) {
-                @Override
-                public void check(JavaClass javaClass, ConditionEvents events) {
-                    // Check annotations on the class itself
-                    for (var annotation : javaClass.getAnnotations()) {
-                        if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
-                            var message = String.format(
-                                    "Class %s is annotated with blacklisted annotation @%s (%s.java:%d)",
-                                    javaClass.getFullName(),
-                                    annotation.getRawType().getFullName(),
-                                    javaClass.getSimpleName(),
-                                    javaClass.getSourceCodeLocation().getLineNumber()
-                            );
-                            events.add(SimpleConditionEvent.violated(javaClass, message));
-                        }
-                    }
-
-                    // Check annotations on methods and their parameters
-                    for (var method : javaClass.getMethods()) {
-                        // Check method annotations
-                        for (var annotation : method.getAnnotations()) {
-                            if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
-                                var message = String.format(
-                                        "Method %s is annotated with blacklisted annotation @%s (%s.java:%d)",
-                                        method.getFullName(),
-                                        annotation.getRawType().getFullName(),
-                                        javaClass.getSimpleName(),
-                                        method.getSourceCodeLocation().getLineNumber()
-                                );
-                                events.add(SimpleConditionEvent.violated(method, message));
-                            }
-                        }
-                        // Check method parameter annotations
-                        for (var parameter : method.getParameters()) {
-                            for (var annotation : parameter.getAnnotations()) {
+    static final ArchRule no_blacklisted_annotations_are_used = FEATURES.blacklistAnnotations() == Features.State.DISABLED
+            ? new InnertRule()
+            : classes()
+                    .should(new ArchCondition<>(
+                            "not use blacklisted annotations on classes, methods, method parameters, or fields"
+                    ) {
+                        @Override
+                        public void check(JavaClass javaClass, ConditionEvents events) {
+                            // Check annotations on the class itself
+                            for (var annotation : javaClass.getAnnotations()) {
                                 if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
                                     var message = String.format(
-                                            "Parameter %s of method %s is annotated with blacklisted annotation @%s (%s.java:%d)",
-                                            parameter.getIndex(),
-                                            method.getFullName(),
+                                            "Class %s is annotated with blacklisted annotation @%s (%s.java:%d)",
+                                            javaClass.getFullName(),
                                             annotation.getRawType().getFullName(),
                                             javaClass.getSimpleName(),
-                                            method.getSourceCodeLocation().getLineNumber()
-                                    ); // Parameter doesn't have its own SLOC, use method's
-                                    events.add(SimpleConditionEvent.violated(parameter, message));
+                                            javaClass.getSourceCodeLocation().getLineNumber()
+                                    );
+                                    events.add(SimpleConditionEvent.violated(javaClass, message));
+                                }
+                            }
+
+                            // Check annotations on methods and their parameters
+                            for (var method : javaClass.getMethods()) {
+                                // Check method annotations
+                                for (var annotation : method.getAnnotations()) {
+                                    if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
+                                        var message = String.format(
+                                                "Method %s is annotated with blacklisted annotation @%s (%s.java:%d)",
+                                                method.getFullName(),
+                                                annotation.getRawType().getFullName(),
+                                                javaClass.getSimpleName(),
+                                                method.getSourceCodeLocation().getLineNumber()
+                                        );
+                                        events.add(SimpleConditionEvent.violated(method, message));
+                                    }
+                                }
+                                // Check method parameter annotations
+                                for (var parameter : method.getParameters()) {
+                                    for (var annotation : parameter.getAnnotations()) {
+                                        if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
+                                            var message = String.format(
+                                                    "Parameter %s of method %s is annotated with blacklisted annotation @%s (%s.java:%d)",
+                                                    parameter.getIndex(),
+                                                    method.getFullName(),
+                                                    annotation.getRawType().getFullName(),
+                                                    javaClass.getSimpleName(),
+                                                    method.getSourceCodeLocation().getLineNumber()
+                                            ); // Parameter doesn't have its own SLOC, use method's
+                                            events.add(SimpleConditionEvent.violated(parameter, message));
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Check annotations on fields (ArchUnit includes record components as fields)
+                            for (var field : javaClass.getFields()) {
+                                for (var annotation : field.getAnnotations()) {
+                                    if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
+                                        var message = String.format(
+                                                "Field %s in class %s is annotated with blacklisted annotation @%s (%s.java:%d)",
+                                                field.getName(),
+                                                javaClass.getFullName(),
+                                                annotation.getRawType().getFullName(),
+                                                javaClass.getSimpleName(),
+                                                field.getSourceCodeLocation().getLineNumber()
+                                        );
+                                        events.add(SimpleConditionEvent.violated(field, message));
+                                    }
                                 }
                             }
                         }
-                    }
+                    });
 
-                    // Check annotations on fields (ArchUnit includes record components as fields)
-                    for (var field : javaClass.getFields()) {
-                        for (var annotation : field.getAnnotations()) {
-                            if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
-                                var message = String.format(
-                                        "Field %s in class %s is annotated with blacklisted annotation @%s (%s.java:%d)",
-                                        field.getName(),
-                                        javaClass.getFullName(),
-                                        annotation.getRawType().getFullName(),
-                                        javaClass.getSimpleName(),
-                                        field.getSourceCodeLocation().getLineNumber()
-                                );
-                                events.add(SimpleConditionEvent.violated(field, message));
+    @SuppressWarnings("unused")
+    @ArchTest
+    static final ArchRule no_blacklisted_classes_are_used = FEATURES.blacklistClasses() == Features.State.DISABLED
+            ? new InnertRule()
+            : noClasses()
+                    .should()
+                    .dependOnClassesThat(
+                            new DescribedPredicate<>("not use blacklisted classes") {
+                                @Override
+                                public boolean test(JavaClass javaClass) {
+                                    return BLACKLISTED_CLASSES.contains(javaClass.getFullName());
+                                }
                             }
-                        }
-                    }
-                }
-            });
+                    );
 
     @SuppressWarnings("unused")
     @ArchTest
-    static final ArchRule no_blacklisted_classes_are_used = noClasses()
-            .should()
-            .dependOnClassesThat(
-                    new DescribedPredicate<>("not use blacklisted classes") {
-                        @Override
-                        public boolean test(JavaClass javaClass) {
-                            return BLACKLISTED_CLASSES.contains(javaClass.getFullName());
-                        }
-                    }
-            );
-
-    @SuppressWarnings("unused")
-    @ArchTest
-    static final ArchRule top_level_classes_must_be_annotated_with_jspecify = classes()
-            .that()
-            .areTopLevelClasses()
-            .and()
-            .areNotAnnotations()
-            .should()
-            .beAnnotatedWith(org.jspecify.annotations.NullMarked.class)
-            .orShould()
-            .beAnnotatedWith(org.jspecify.annotations.NullUnmarked.class);
+    static final ArchRule top_level_classes_must_be_annotated_with_jspecify = FEATURES.enforceJspecify() == Features.State.DISABLED
+            ? new InnertRule()
+            : classes()
+                    .that()
+                    .areTopLevelClasses()
+                    .and()
+                    .areNotAnnotations()
+                    .should()
+                    .beAnnotatedWith(org.jspecify.annotations.NullMarked.class)
+                    .orShould()
+                    .beAnnotatedWith(org.jspecify.annotations.NullUnmarked.class);
 
     /* ****************************************************************** */
 
