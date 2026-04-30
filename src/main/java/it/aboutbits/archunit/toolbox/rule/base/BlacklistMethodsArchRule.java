@@ -21,6 +21,9 @@ public interface BlacklistMethodsArchRule {
             Set.of(
                     // We should use `assertThatExceptionOfType(...).isThrownBy(...)` instead of `assertThatThrownBy(...)`
                     "org.assertj.core.api.Assertions.assertThatThrownBy",
+                    "org.assertj.core.api.Assertions.assertThrows",
+                    "org.assertj.core.api.Assertions.assertThrowsExactly",
+                    "org.assertj.core.api.Assertions.assertDoesNotThrow",
                     "org.junit.jupiter.api.Assertions.assertThrows",
                     "org.junit.jupiter.api.Assertions.assertDoesNotThrow",
                     // assertThat (allowed is only org.assertj.core.api.Assertions.assertThat)
@@ -54,7 +57,10 @@ public interface BlacklistMethodsArchRule {
                     "org.junit.jupiter.api.Assertions.assertNotNull",
                     "org.junit.jupiter.api.Assertions.assertNull",
                     "org.junit.jupiter.api.Assertions.assertTrue",
-                    "org.testcontainers.shaded.org.hamcrest.MatcherAssert.assertThat"
+                    "org.testcontainers.shaded.org.hamcrest.MatcherAssert.assertThat",
+                    // use regular Mockito instead of BDDMockito
+                    "org.mockito.BDDMockito.given",
+                    "org.mockito.BDDMockito.then"
             )
     );
 

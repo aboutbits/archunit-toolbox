@@ -4,6 +4,8 @@ import it.aboutbits.archunit.toolbox.rule.base.BlacklistAnnotationsArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.BlacklistClassesArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.BlacklistMethodsArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.EnforceJspecifyArchRule;
+import it.aboutbits.archunit.toolbox.rule.base.NoSystemOutOrErrArchRule;
+import it.aboutbits.archunit.toolbox.rule.base.RecordPropertiesMustBeAccessedViaAccessorArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.TestClassInCorrectPackageArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.TestClassVisibilityArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.TestMethodVisibilityArchRule;
@@ -17,6 +19,8 @@ public interface BaseArchRuleCollection extends
         BlacklistClassesArchRule,
         BlacklistMethodsArchRule,
         EnforceJspecifyArchRule,
+        NoSystemOutOrErrArchRule,
+        RecordPropertiesMustBeAccessedViaAccessorArchRule,
         TestClassInCorrectPackageArchRule,
         TestClassVisibilityArchRule,
         TestMethodVisibilityArchRule,

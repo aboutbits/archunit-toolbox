@@ -9,9 +9,11 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import org.jspecify.annotations.NullMarked;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
+@NullMarked
 public interface ControllerRequestMappingsMustBeSecurityTested {
     @SuppressWarnings({"unused", "checkstyle:MethodName", "java:S100"})
     @ArchTest
