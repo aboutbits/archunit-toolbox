@@ -8,7 +8,6 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.HashMap;
@@ -49,14 +48,14 @@ public interface SortMappingsExhaustiveArchRule {
             validateSortMappings(javaClass, events, mappings);
         }
 
-        private static @NonNull DetectedSortField detectSortMappings(JavaClass javaClass) {
+        private static DetectedSortField detectSortMappings(JavaClass javaClass) {
             // Read SortMappings static fields, resolve their enum type, and collect key names
             var fieldToKeyNames = new HashMap<String, Set<String>>();
             var fieldToEnumClassName = new HashMap<String, String>();
             try {
                 var runtimeClass = Class.forName(javaClass.getFullName());
                 for (var field : javaClass.getFields()) {
-                    if (field.getRawType().getFullName().equals(
+                    if (field.getRawType().isAssignableTo(
                             "it.aboutbits.springboot.toolbox.persistence.SortMappings")) {
                         String enumClassName = null;
 
@@ -157,8 +156,7 @@ public interface SortMappingsExhaustiveArchRule {
                             var fieldLine = javaClass.getFields().stream()
                                     .filter(f -> f.getName().equals(fieldName))
                                     .filter(f -> f.getRawType()
-                                            .getFullName()
-                                            .equals("it.aboutbits.springboot.toolbox.persistence.SortMappings"))
+                                            .isAssignableTo("it.aboutbits.springboot.toolbox.persistence.SortMappings"))
                                     .findFirst()
                                     .map(f -> f.getSourceCodeLocation().getLineNumber())
                                     .orElse(-1);
