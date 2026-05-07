@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
 @NullMarked
@@ -93,7 +94,7 @@ public interface BlacklistMethodsArchRule {
                                 method.getFullName(),
                                 fullMethodName,
                                 javaClass.getSimpleName(),
-                                methodCall.getSourceCodeLocation().getLineNumber()
+                                getLineNumber(methodCall)
                         );
                         events.add(SimpleConditionEvent.violated(method, message));
                     }
@@ -114,7 +115,7 @@ public interface BlacklistMethodsArchRule {
                                 javaClass.getFullName(),
                                 fullMethodName,
                                 javaClass.getSimpleName(),
-                                methodCall.getSourceCodeLocation().getLineNumber()
+                                getLineNumber(methodCall)
                         );
                         events.add(SimpleConditionEvent.violated(staticInitializer, message));
                     }

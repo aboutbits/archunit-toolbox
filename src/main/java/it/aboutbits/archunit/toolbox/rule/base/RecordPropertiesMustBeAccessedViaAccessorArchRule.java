@@ -9,6 +9,7 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.jspecify.annotations.NullMarked;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
+import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
 @NullMarked
@@ -38,7 +39,7 @@ public interface RecordPropertiesMustBeAccessedViaAccessorArchRule {
                                             access.getOrigin().getFullName(),
                                             field.getName(),
                                             access.getOrigin().getOwner().getSimpleName(),
-                                            access.getLineNumber()
+                                            getLineNumber(access)
                                     );
                             events.add(SimpleConditionEvent.violated(access, message));
                         }

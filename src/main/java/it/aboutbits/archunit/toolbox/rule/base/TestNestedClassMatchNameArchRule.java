@@ -8,12 +8,12 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.jspecify.annotations.NullMarked;
-import org.slf4j.LoggerFactory;
 
 import java.util.stream.Collectors;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static it.aboutbits.archunit.toolbox.config.ArchRuleConfig.TEST_CLASS_SUFFIXES;
+import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
 @NullMarked
@@ -92,11 +92,7 @@ public interface TestNestedClassMatchNameArchRule {
                 var nestedClassBaseClassSimpleName = nestedClass.getName()
                         .replace(nestedClass.getPackageName() + ".", "")
                         .replaceAll("\\$.+", "");
-                var nestedClassLineNumber = nestedClass.getConstructors()
-                        .iterator()
-                        .next()
-                        .getSourceCodeLocation()
-                        .getLineNumber();
+                var nestedClassLineNumber = getLineNumber(nestedClass);
 
                 /*
                  * This is only true for inner @Nested group classes like for example
@@ -145,25 +141,7 @@ public interface TestNestedClassMatchNameArchRule {
                             .anyMatch(methodName -> methodName.equals(expectedMethodName));
 
                     if (!methodExists) {
-                        int productionClassLineNumber = -1;
-
-                        try {
-                            productionClassLineNumber = productionClass.getConstructors()
-                                    .iterator()
-                                    .next()
-                                    .getSourceCodeLocation()
-                                    .getLineNumber();
-                        } catch (Exception _) {
-                            var log = LoggerFactory.getLogger(getClass());
-                            log.error(
-                                    "Failed to resolve productionClassLineNumber. [nestedClass.getName()={}, nestedClassBaseClassSimpleName={}, nestedClassLineNumber={}, expectedMethodName={}, productionClass.getName()={}]",
-                                    nestedClass.getName(),
-                                    nestedClassBaseClassSimpleName,
-                                    nestedClassLineNumber,
-                                    expectedMethodName,
-                                    productionClass.getName()
-                            );
-                        }
+                        var productionClassLineNumber = getLineNumber(productionClass);
 
                         var message = "The @Nested test class <%s> (%s.java:%s)%ndoes not match any expected method name <%s> in production class <%s> (%s.java:%s)".formatted(
                                 nestedClass.getName(),

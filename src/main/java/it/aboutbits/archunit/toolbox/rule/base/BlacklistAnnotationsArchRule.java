@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
 @NullMarked
@@ -80,7 +81,7 @@ public interface BlacklistAnnotationsArchRule {
                             javaClass.getFullName(),
                             annotation.getRawType().getFullName(),
                             javaClass.getSimpleName(),
-                            javaClass.getSourceCodeLocation().getLineNumber()
+                            getLineNumber(javaClass)
                     );
                     events.add(SimpleConditionEvent.violated(javaClass, message));
                 }
@@ -96,7 +97,7 @@ public interface BlacklistAnnotationsArchRule {
                                 method.getFullName(),
                                 annotation.getRawType().getFullName(),
                                 javaClass.getSimpleName(),
-                                method.getSourceCodeLocation().getLineNumber()
+                                getLineNumber(method)
                         );
                         events.add(SimpleConditionEvent.violated(method, message));
                     }
@@ -111,7 +112,7 @@ public interface BlacklistAnnotationsArchRule {
                                     method.getFullName(),
                                     annotation.getRawType().getFullName(),
                                     javaClass.getSimpleName(),
-                                    method.getSourceCodeLocation().getLineNumber()
+                                    getLineNumber(method)
                             ); // Parameter doesn't have its own SLOC, use method's
                             events.add(SimpleConditionEvent.violated(parameter, message));
                         }
@@ -129,7 +130,7 @@ public interface BlacklistAnnotationsArchRule {
                                 javaClass.getFullName(),
                                 annotation.getRawType().getFullName(),
                                 javaClass.getSimpleName(),
-                                field.getSourceCodeLocation().getLineNumber()
+                                getLineNumber(field)
                         );
                         events.add(SimpleConditionEvent.violated(field, message));
                     }

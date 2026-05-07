@@ -7,6 +7,7 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import it.aboutbits.archunit.toolbox.util.LineNumberUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @NullMarked
 public interface SortMappingsExhaustiveArchRule {
@@ -99,7 +101,7 @@ public interface SortMappingsExhaustiveArchRule {
                                     field.getName(),
                                     javaClass.getFullName(),
                                     javaClass.getSimpleName(),
-                                    field.getSourceCodeLocation().getLineNumber()
+                                    getLineNumber(field)
                             );
                         }
 
@@ -114,7 +116,7 @@ public interface SortMappingsExhaustiveArchRule {
                         "Failed to resolve enum type for SortMappings field in {} ({}.java:{})",
                         javaClass.getFullName(),
                         javaClass.getSimpleName(),
-                        javaClass.getSourceCodeLocation().getLineNumber()
+                        getLineNumber(javaClass)
                 );
             }
             return new DetectedSortField(fieldToKeyNames, fieldToEnumClassName);
@@ -138,7 +140,7 @@ public interface SortMappingsExhaustiveArchRule {
                             fieldName,
                             javaClass.getFullName(),
                             javaClass.getSimpleName(),
-                            javaClass.getSourceCodeLocation().getLineNumber()
+                            getLineNumber(javaClass)
                     );
                     continue;
                 }
@@ -158,7 +160,7 @@ public interface SortMappingsExhaustiveArchRule {
                                     .filter(f -> f.getRawType()
                                             .isAssignableTo("it.aboutbits.springboot.toolbox.persistence.SortMappings"))
                                     .findFirst()
-                                    .map(f -> f.getSourceCodeLocation().getLineNumber())
+                                    .map(LineNumberUtil::getLineNumber)
                                     .orElse(-1);
 
                             var message = String.format(
@@ -180,7 +182,7 @@ public interface SortMappingsExhaustiveArchRule {
                             fieldName,
                             javaClass.getFullName(),
                             javaClass.getSimpleName(),
-                            javaClass.getSourceCodeLocation().getLineNumber()
+                            getLineNumber(javaClass)
                     );
                 }
             }

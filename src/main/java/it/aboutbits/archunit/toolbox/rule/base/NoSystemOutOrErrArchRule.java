@@ -9,6 +9,7 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.jspecify.annotations.NullMarked;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
 @NullMarked
@@ -45,7 +46,7 @@ public interface NoSystemOutOrErrArchRule {
                                 SYSTEM_CLASS,
                                 fieldAccess.getTarget().getName(),
                                 javaClass.getSimpleName(),
-                                fieldAccess.getSourceCodeLocation().getLineNumber()
+                                getLineNumber(fieldAccess)
                         );
                         events.add(SimpleConditionEvent.violated(staticInitializer, message));
                     }
@@ -66,7 +67,7 @@ public interface NoSystemOutOrErrArchRule {
                                 SYSTEM_CLASS,
                                 fieldAccess.getTarget().getName(),
                                 javaClass.getSimpleName(),
-                                fieldAccess.getSourceCodeLocation().getLineNumber()
+                                getLineNumber(fieldAccess)
                         );
                         events.add(SimpleConditionEvent.violated(method, message));
                     }
