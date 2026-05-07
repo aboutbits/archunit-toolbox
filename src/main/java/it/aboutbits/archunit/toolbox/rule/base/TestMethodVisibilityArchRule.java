@@ -22,7 +22,7 @@ public interface TestMethodVisibilityArchRule {
                 .or()
                 .areAnnotatedWith(org.junit.jupiter.params.ParameterizedTest.class)
                 .or()
-                .areAnnotatedWith(ArchTest.class)
+                .areAnnotatedWith(com.tngtech.archunit.junit.ArchTest.class)
                 .and()
                 .areDeclaredInClassesThat(new DescribedPredicate<>("are not an interface") {
                     @Override
