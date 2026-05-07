@@ -6,9 +6,11 @@ import com.tngtech.archunit.core.domain.JavaConstructor;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaParameterizedType;
 import com.tngtech.archunit.core.domain.JavaStaticInitializer;
+import com.tngtech.archunit.core.domain.properties.HasSourceCodeLocation;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -16,6 +18,23 @@ import java.util.stream.Stream;
 @NullMarked
 public final class LineNumberUtil {
     private LineNumberUtil() {
+    }
+
+    public static int getLineNumber(HasSourceCodeLocation element) {
+        return element.getSourceCodeLocation().getLineNumber();
+    }
+
+    // JavaClass overload with constructor fallback: class-level SLOC is 0 for nested/anonymous classes
+    public static int getLineNumber(JavaClass javaClass) {
+        var lineNumber = javaClass.getSourceCodeLocation().getLineNumber();
+        if (lineNumber != 0) {
+            return lineNumber;
+        }
+        try {
+            return javaClass.getConstructors().iterator().next().getSourceCodeLocation().getLineNumber();
+        } catch (NoSuchElementException _) {
+            return 0;
+        }
     }
 
     public static List<LineNumberType> getDependencyUsageLineNumberTypes(
