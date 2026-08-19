@@ -19,13 +19,24 @@ public interface TestClassInCorrectPackageArchRule {
     default void test_classes_should_be_in_the_same_package_as_their_production_code(JavaClasses classes) {
         classes().that(TestClassNames.testClasses())
                 .and()
-                .areNotAnnotatedWith(org.junit.jupiter.api.Disabled.class)
+                .areNotMetaAnnotatedWith(org.junit.jupiter.api.Disabled.class)
                 .and()
-                .areNotAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
+                .areNotMetaAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
                 .and()
-                .areNotAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreNoProductionCounterpart.class)
+                /*
+                 * Meta-annotated, not annotated: a project marks its scenario tests with one
+                 * stereotype of its own that carries this annotation, rather than repeating the
+                 * annotation on every class. ArchUnit counts a direct annotation as meta-annotated,
+                 * so annotating a single class still works.
+                 */
+                .areNotMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreNoProductionCounterpart.class)
                 .and()
-                .resideOutsideOfPackages(".._support..", ".._config..")
+                /*
+                 * An architecture test is named after no production class by definition. Excluded by
+                 * package here, but deliberately not in TestClassVisibilityArchRule: being package
+                 * private is just as achievable for an architecture test as for any other test.
+                 */
+                .resideOutsideOfPackages(".._support..", ".._config..", ".._architecture..")
                 .should(new BeInTheSamePackageAsTheProductionClass(classes))
                 .allowEmptyShould(true)
                 .check(classes);

@@ -23,15 +23,15 @@ public interface TestNestedClassMatchNameArchRule {
     default void nested_test_classes_have_matching_production_method_name(JavaClasses classes) {
         classes().that(TestClassNames.testClasses())
                 .and()
-                .areNotAnnotatedWith(org.junit.jupiter.api.Disabled.class)
+                .areNotMetaAnnotatedWith(org.junit.jupiter.api.Disabled.class)
                 .and()
-                .areNotAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
+                .areNotMetaAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
                 .and()
                 /*
                  * A test class that declares it has no production counterpart has no production
                  * methods to match its @Nested classes against either.
                  */
-                .areNotAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreNoProductionCounterpart.class)
+                .areNotMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreNoProductionCounterpart.class)
                 .should(new HaveNestedClassesThatHaveAMatchingProductionMethodName(classes))
                 .allowEmptyShould(true)
                 .check(classes);
@@ -53,7 +53,7 @@ public interface TestNestedClassMatchNameArchRule {
                     .stream()
                     .filter(clazz -> clazz.getName().startsWith(testClass.getName() + "$")
                             && clazz.isAnnotatedWith(org.junit.jupiter.api.Nested.class)
-                            && !clazz.isAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
+                            && !clazz.isMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
                             && !clazz.getName().endsWith("$Validation")
                     )
                     .collect(Collectors.toSet());
@@ -83,7 +83,7 @@ public interface TestNestedClassMatchNameArchRule {
                         .stream()
                         .anyMatch(clazz -> clazz.getName().startsWith(nestedClass.getName() + "$")
                                 && clazz.isAnnotatedWith(org.junit.jupiter.api.Nested.class)
-                                && !clazz.isAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
+                                && !clazz.isMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
                                 && !clazz.getName().endsWith("$Validation")
                         )
                 ) {

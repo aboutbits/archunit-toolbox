@@ -32,4 +32,30 @@ class TestClassInCorrectPackageArchRuleTest implements TestClassInCorrectPackage
     void a_test_class_annotated_as_having_no_production_counterpart_is_accepted() {
         test_classes_should_be_in_the_same_package_as_their_production_code(fixture("testclasspackage.goodoptout"));
     }
+
+    /// The opt-out has to be usable once, on a project's own test stereotype, rather than repeated on
+    /// every scenario test.
+    @Test
+    void a_test_class_opted_out_through_a_meta_annotation_is_accepted() {
+        test_classes_should_be_in_the_same_package_as_their_production_code(
+                fixture("testclasspackage.goodmetaoptout"));
+    }
+
+    @Test
+    void an_architecture_test_in_its_own_package_is_accepted() {
+        test_classes_should_be_in_the_same_package_as_their_production_code(
+                fixture("testclasspackage.witharchitecture"));
+    }
+
+    /// The exemption is the package, not the name: the rule no longer hardcodes "ArchitectureTest".
+    @Test
+    void an_architecture_test_outside_an_architecture_package_is_reported() {
+        var classes = fixture("testclasspackage.badarchitecture");
+
+        var failure = violationOf(
+                () -> test_classes_should_be_in_the_same_package_as_their_production_code(classes));
+
+        assertThat(violationCount(failure)).isEqualTo(1);
+        assertThat(failure).hasMessageContaining("testclasspackage.badarchitecture.Architecture");
+    }
 }

@@ -24,6 +24,7 @@ public interface BlacklistMethodsArchRule {
                     // We should use `assertThatExceptionOfType(...).isThrownBy(...)` instead of `assertThatThrownBy(...)`
                     "org.assertj.core.api.Assertions.assertThatThrownBy",
                     "org.junit.jupiter.api.Assertions.assertThrows",
+                    "org.junit.jupiter.api.Assertions.assertThrowsExactly",
                     "org.junit.jupiter.api.Assertions.assertDoesNotThrow",
                     // assertThat (allowed is only org.assertj.core.api.Assertions.assertThat)
                     "org.assertj.core.api.AssertionsForClassTypes.assertThat",

@@ -91,8 +91,8 @@ public interface ControllerRequestMappingsMustBeSecurityTested {
                     .stream()
                     .anyMatch(clazz -> isExpectedNestedClass(clazz.getName(), expectedNestedClassName)
                             && clazz.isAnnotatedWith(org.junit.jupiter.api.Nested.class)
-                            && !clazz.isAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
-                            && !clazz.isAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
+                            && !clazz.isMetaAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
+                            && !clazz.isMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
                     );
 
             if (!nestedMethodTestClassFound) {

@@ -73,7 +73,26 @@ Two annotations exempt a class from a specific rule. Neither is meta-annotated w
 | `@ArchIgnoreGroupName` | a `@Nested` test class | needing a production method of the same name, for a class that only groups tests |
 
 Use `@ArchIgnoreNoProductionCounterpart` for a test named after the behaviour it describes rather than
-after a production class, and on your own `ArchitectureTest`.
+after a production class.
+
+Both are read as meta-annotations, so a project declares its intent once on its own stereotype instead
+of repeating the annotation on every class:
+
+```java
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@ArchIgnoreNoProductionCounterpart
+public @interface BusinessTest {
+}
+```
+
+Annotating a single class directly still works — ArchUnit counts a direct annotation as
+meta-annotated.
+
+Architecture tests need neither: any class in a package named `_architecture` is exempt from the
+production-counterpart rule, alongside the existing `_support` and `_config` exclusions. Use the
+annotation for the one-off that lives elsewhere.
 
 ## Local Development
 

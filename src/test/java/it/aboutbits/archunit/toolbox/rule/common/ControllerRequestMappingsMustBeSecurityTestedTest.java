@@ -58,4 +58,17 @@ class ControllerRequestMappingsMustBeSecurityTestedTest implements ControllerReq
     void a_mapped_method_covered_by_a_nested_group_is_accepted() {
         controller_methods_with_request_mapping_must_be_security_tested(fixture("securitytested.goodnestedgroup"));
     }
+
+    /// A class marked as organisational through a project's own stereotype is not coverage, so the
+    /// method it is named after is still uncovered.
+    @Test
+    void a_mapped_method_covered_only_by_a_group_marked_class_is_reported() {
+        var classes = fixture("securitytested.badmetagroup");
+
+        var failure = violationOf(
+                () -> controller_methods_with_request_mapping_must_be_security_tested(classes));
+
+        assertThat(violationCount(failure)).isEqualTo(1);
+        assertThat(failure).hasMessageContaining("does not contain a @Nested test class named GetAll");
+    }
 }

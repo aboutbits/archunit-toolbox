@@ -56,6 +56,27 @@ class BlacklistMethodsArchRuleTest implements BlacklistMethodsArchRule {
         no_blacklisted_methods_are_used(fixture("blacklistmethods.good"));
     }
 
+    @Test
+    void a_blacklisted_junit_assertion_is_reported() {
+        var failure = violationOf(
+                () -> no_blacklisted_methods_are_used(fixture("blacklistmethods.badjunitassertion")));
+
+        assertThat(violationCount(failure)).isEqualTo(1);
+        assertThat(failure)
+                .hasMessageContaining("org.junit.jupiter.api.Assertions.assertThrowsExactly");
+    }
+
+    /// Removing the AssertJ entries below must not drop the house rule itself: these three methods
+    /// exist on JUnit's Assertions and have to stay blacklisted under that owner.
+    @Test
+    void the_blacklist_names_the_junit_assertion_methods_under_their_real_owner() {
+        assertThat(BLACKLISTED_METHODS).contains(
+                "org.junit.jupiter.api.Assertions.assertThrows",
+                "org.junit.jupiter.api.Assertions.assertThrowsExactly",
+                "org.junit.jupiter.api.Assertions.assertDoesNotThrow"
+        );
+    }
+
     /// A blacklist entry naming a method that does not exist can never match, so it reads as coverage
     /// without providing any.
     @Test

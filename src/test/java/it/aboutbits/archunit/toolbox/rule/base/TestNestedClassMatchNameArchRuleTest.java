@@ -55,4 +55,16 @@ class TestNestedClassMatchNameArchRuleTest implements TestNestedClassMatchNameAr
     void a_test_class_annotated_as_having_no_production_counterpart_is_accepted() {
         nested_test_classes_have_matching_production_method_name(fixture("nestedclassname.goodoptout"));
     }
+
+    /// The opt-out has to be usable once, on a project's own test stereotype.
+    @Test
+    void a_test_class_opted_out_through_a_meta_annotation_is_accepted() {
+        nested_test_classes_have_matching_production_method_name(fixture("nestedclassname.goodmetaoptout"));
+    }
+
+    /// Same for the group marker: a project names its own grouping stereotype once.
+    @Test
+    void a_nested_group_marked_through_a_meta_annotation_is_accepted() {
+        nested_test_classes_have_matching_production_method_name(fixture("nestedclassname.goodmetagroup"));
+    }
 }
