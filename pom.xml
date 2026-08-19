@@ -50,6 +50,32 @@
             <version>1.4.2</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- Test only: needed to run this library's own rule tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--
+            Fixtures for the two rules in CommonArchRuleCollection need real Spring MVC annotations.
+            Test scope only, so consumers do not inherit them.
+        -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -96,6 +122,20 @@
                         <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                     </compilerArgs>
                     <fork>true</fork>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!--
+                        it.aboutbits.archunit.fixture contains deliberately non-conforming classes that
+                        the rule tests import as input. Some are named *Test and would otherwise be
+                        collected and reported as tests of this project.
+                    -->
+                    <excludes>
+                        <exclude>it/aboutbits/archunit/fixture/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
