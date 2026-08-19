@@ -33,6 +33,7 @@ public interface TestNestedClassMatchNameArchRule {
                  */
                 .areNotAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreNoProductionCounterpart.class)
                 .should(new HaveNestedClassesThatHaveAMatchingProductionMethodName(classes))
+                .allowEmptyShould(true)
                 .check(classes);
     }
 

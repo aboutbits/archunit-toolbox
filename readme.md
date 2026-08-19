@@ -47,12 +47,19 @@ static {
 
 The same applies to `ArchRuleConfig.TEST_CLASS_SUFFIXES` when a project introduces a new test type.
 
-### Every rule must be able to fail
+### Rules your project has no code for
 
-No rule uses `allowEmptyShould(true)`. A rule that selects nothing would otherwise report success,
-which is indistinguishable from a rule that is satisfied - and that is how a broken rule survives
-unnoticed. So a rule whose selection comes up empty fails, and the fix is either to remove the rule
-collection you do not need or to add the code it is meant to check.
+Every rule tolerates a selection that comes up empty, so a rule simply passes on a project it does
+not apply to. Whether a project has records, controllers, `@Store` classes or `@Nested` test classes
+is the project's business, not something this library requires.
+
+That each rule can actually fail is guaranteed by a red test per rule in this repository, rather than
+by making your build fail over code you do not have. An empty selection says nothing about whether a
+rule's logic works.
+
+One case is a real problem though, and `analyzed_packages_must_contain_classes` covers it: if the
+packages given to `@AnalyzeClasses` are mistyped or have moved, nothing is imported and every other
+rule would pass without looking at a single class. That fails, once, with a message naming the cause.
 
 ### Opting out
 

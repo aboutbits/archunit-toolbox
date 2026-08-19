@@ -36,6 +36,17 @@ public final class RuleEvaluation {
         return classes;
     }
 
+    /** An import that yielded nothing, as a consumer with a mistyped @AnalyzeClasses package gets. */
+    public static JavaClasses noClassesImported() {
+        var classes = new ClassFileImporter().importPackages(FIXTURE_ROOT + "nosuchpackage");
+
+        if (!classes.isEmpty()) {
+            throw new IllegalStateException("Expected an empty import but got " + classes.size() + " classes");
+        }
+
+        return classes;
+    }
+
     /**
      * Runs a rule that is expected to report at least one violation and returns the failure.
      * Failing here means the rule accepted a fixture that was built to violate it.

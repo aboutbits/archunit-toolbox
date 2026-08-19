@@ -64,6 +64,7 @@ public interface BlacklistAnnotationsArchRule {
     default void no_blacklisted_annotations_are_used(JavaClasses classes) {
         classes()
                 .should(new NotUseBlacklistedAnnotations())
+                .allowEmptyShould(true)
                 .check(classes);
     }
 

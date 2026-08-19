@@ -44,6 +44,7 @@ public interface ControllerRequestMappingsMustBeSecurityTested {
                     }
                 })
                 .should(new BeSecurityTested())
+                .allowEmptyShould(true)
                 .check(classes);
     }
 

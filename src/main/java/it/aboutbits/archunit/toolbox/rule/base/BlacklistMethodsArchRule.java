@@ -68,6 +68,7 @@ public interface BlacklistMethodsArchRule {
     default void no_blacklisted_methods_are_used(JavaClasses classes) {
         classes()
                 .should(new NotUseBlacklistedMethods())
+                .allowEmptyShould(true)
                 .check(classes);
     }
 

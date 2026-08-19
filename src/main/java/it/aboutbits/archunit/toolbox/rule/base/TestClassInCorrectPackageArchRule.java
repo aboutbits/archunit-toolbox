@@ -27,6 +27,7 @@ public interface TestClassInCorrectPackageArchRule {
                 .and()
                 .resideOutsideOfPackages(".._support..", ".._config..")
                 .should(new BeInTheSamePackageAsTheProductionClass(classes))
+                .allowEmptyShould(true)
                 .check(classes);
     }
 

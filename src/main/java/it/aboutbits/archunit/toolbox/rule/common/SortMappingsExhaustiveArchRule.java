@@ -31,6 +31,7 @@ public interface SortMappingsExhaustiveArchRule {
                 .that()
                 .areAnnotatedWith("it.aboutbits.springboot.toolbox.stereotype.Store")
                 .should(new HaveExhaustiveSortMappingsIfPresent())
+                .allowEmptyShould(true)
                 .check(classes);
     }
 

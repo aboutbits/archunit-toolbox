@@ -12,16 +12,21 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static it.aboutbits.archunit.toolbox.RuleEvaluation.fixture;
-import static it.aboutbits.archunit.toolbox.RuleEvaluation.violationOf;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 /**
- * No rule may use {@code allowEmptyShould(true)}.
+ * A rule must not complain about code the project does not have.
  * <p>
- * A rule that selects nothing reports success, which is indistinguishable from a rule that is
- * satisfied. That is how a broken rule survives unnoticed, so every rule that narrows its input must
- * fail when the selection comes up empty.
+ * Whether a project contains records, controllers, @Store classes or @Nested test classes is the
+ * project's business, so every rule tolerates a selection that comes up empty. That each rule can
+ * still fail is guaranteed by its own red test in this project, not by making consumers fail - an
+ * empty selection says nothing about whether a rule's logic works. The counterpart rule proved that:
+ * its selection was never empty, its condition was simply broken.
+ * </p>
+ * <p>
+ * The one genuinely dangerous case, nothing imported at all, is covered by
+ * AnalyzedPackagesMustContainClassesArchRule.
  * </p>
  */
 @NullMarked
@@ -47,23 +52,24 @@ class EmptySelectionTest {
                 arguments("controller request mappings must be security tested",
                         consumer(RULES::controller_methods_with_request_mapping_must_be_security_tested)),
                 arguments("sort mappings cover all sort enum values",
-                        consumer(RULES::sort_mappings_cover_all_sort_enum_values))
+                        consumer(RULES::sort_mappings_cover_all_sort_enum_values)),
+                arguments("top level classes must be annotated with jspecify",
+                        consumer(RULES::top_level_classes_must_be_annotated_with_jspecify))
         );
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("rulesThatNarrowTheirInput")
-    void a_rule_that_selects_nothing_fails_instead_of_reporting_success(
+    void a_rule_accepts_a_project_that_has_no_code_it_applies_to(
             String ruleDescription,
             Consumer<JavaClasses> rule
     ) {
+        // One plain class: no test classes, no records, no controllers, no stores
         var barrenCodebase = fixture("barren");
 
-        var failure = violationOf(() -> rule.accept(barrenCodebase));
-
-        assertThat(failure)
-                .as("%s must not pass on a codebase it selects nothing from", ruleDescription)
-                .hasMessageContaining("failed to check any");
+        assertThatCode(() -> rule.accept(barrenCodebase))
+                .as("%s must not fail a project that has no code it applies to", ruleDescription)
+                .doesNotThrowAnyException();
     }
 
     private static Consumer<JavaClasses> consumer(Consumer<JavaClasses> rule) {

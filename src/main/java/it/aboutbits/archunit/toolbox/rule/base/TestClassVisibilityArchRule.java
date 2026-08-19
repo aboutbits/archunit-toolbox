@@ -19,6 +19,7 @@ public interface TestClassVisibilityArchRule {
                 .resideOutsideOfPackages(".._support..", ".._config..")
                 .should()
                 .bePackagePrivate()
+                .allowEmptyShould(true)
                 .check(classes);
     }
 }

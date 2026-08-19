@@ -45,5 +45,6 @@ public interface RecordPropertiesMustBeAccessedViaAccessorArchRule {
                         }
                     }
                 }
-            });
+            })
+            .allowEmptyShould(true);
 }

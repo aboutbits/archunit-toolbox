@@ -20,6 +20,7 @@ public interface NoSystemOutOrErrArchRule {
     default void no_system_out_or_err_is_used(JavaClasses classes) {
         classes()
                 .should(new NotUseSystemOutOrErr())
+                .allowEmptyShould(true)
                 .check(classes);
     }
 
