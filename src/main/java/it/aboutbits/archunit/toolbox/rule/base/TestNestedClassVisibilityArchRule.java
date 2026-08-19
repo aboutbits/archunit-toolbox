@@ -17,7 +17,6 @@ public interface TestNestedClassVisibilityArchRule {
                 .areAnnotatedWith(org.junit.jupiter.api.Nested.class)
                 .should()
                 .bePackagePrivate()
-                .allowEmptyShould(true)
                 .check(classes);
     }
 }

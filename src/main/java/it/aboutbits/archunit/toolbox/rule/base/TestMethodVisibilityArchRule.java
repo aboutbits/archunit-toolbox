@@ -32,7 +32,6 @@ public interface TestMethodVisibilityArchRule {
                 })
                 .should()
                 .bePackagePrivate()
-                .allowEmptyShould(true)
                 .check(classes);
     }
 }
