@@ -18,8 +18,7 @@ Add this library to the classpath by adding the following maven dependency. Vers
 
 ## Usage
 
-To use this package, simply extend one of the provided ArchUnit classes.
-For example `ArchitectureTestBase`:
+Implement one of the provided rule collections in your own architecture test.
 
 ```java
 
@@ -27,22 +26,47 @@ For example `ArchitectureTestBase`:
         packages = ArchitectureTest.PACKAGE
 )
 @NullMarked
-class ArchitectureTest extends ArchitectureTestBase {
+@ArchIgnoreNoProductionCounterpart
+class ArchitectureTest implements BaseArchRuleCollection {
     static final String PACKAGE = "the.base.package.of.your.project";
-
-    static {
-        // Configuration
-    }
 }
 ```
 
-In the static block you can configure some blacklists provided by the base class.
+`BaseArchRuleCollection` holds the rules that apply to any Java project. `CommonArchRuleCollection`
+adds rules for Spring MVC controllers and for `SortMappings`, so implement it only in a project that
+has them.
+
+The blacklists are mutable, so a project can drop an entry it disagrees with:
 
 ```java
-    static {
-    ArchitectureTestBase.BLACKLISTED_CLASSES.remove("net.datafaker.Faker");
+
+static {
+    BlacklistClassesArchRule.BLACKLISTED_CLASSES.remove("net.datafaker.Faker");
 }
 ```
+
+The same applies to `ArchRuleConfig.TEST_CLASS_SUFFIXES` when a project introduces a new test type.
+
+### Every rule must be able to fail
+
+No rule uses `allowEmptyShould(true)`. A rule that selects nothing would otherwise report success,
+which is indistinguishable from a rule that is satisfied - and that is how a broken rule survives
+unnoticed. So a rule whose selection comes up empty fails, and the fix is either to remove the rule
+collection you do not need or to add the code it is meant to check.
+
+### Opting out
+
+Two annotations exempt a class from a specific rule. Neither is meta-annotated with ArchUnit's
+`@ArchIgnore`: the ArchUnit JUnit engine resolves meta-annotations, so that would skip *every*
+`@ArchTest` on the annotated class and report success rather than exempting it from one rule.
+
+| annotation | put it on | exempts from |
+|---|---|---|
+| `@ArchIgnoreNoProductionCounterpart` | a test class | needing a production class of the same name in the same package, and having its `@Nested` classes matched against production methods |
+| `@ArchIgnoreGroupName` | a `@Nested` test class | needing a production method of the same name, for a class that only groups tests |
+
+Use `@ArchIgnoreNoProductionCounterpart` for a test named after the behaviour it describes rather than
+after a production class, and on your own `ArchitectureTest`.
 
 ## Local Development
 
