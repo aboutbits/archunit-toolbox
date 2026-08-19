@@ -34,9 +34,7 @@ class ControllerRequestMappingsMustBeSecurityTestedTest implements ControllerReq
         assertThat(failure).hasMessageContaining("does not contain a @Nested test class named GetAll");
     }
 
-    /**
-     * getAll() must not be considered covered by the @Nested class belonging to getAllArchived().
-     */
+    /// getAll() must not be considered covered by the `@Nested` class belonging to getAllArchived().
     @Test
     void a_mapped_method_covered_only_by_a_longer_named_sibling_is_reported() {
         var classes = fixture("securitytested.badprefix");
@@ -55,7 +53,7 @@ class ControllerRequestMappingsMustBeSecurityTestedTest implements ControllerReq
         controller_methods_with_request_mapping_must_be_security_tested(fixture("securitytested.good"));
     }
 
-    /** A @Nested class grouped inside the method-named class still counts as coverage. */
+    /// A `@Nested` class grouped inside the method-named class still counts as coverage.
     @Test
     void a_mapped_method_covered_by_a_nested_group_is_accepted() {
         controller_methods_with_request_mapping_must_be_security_tested(fixture("securitytested.goodnestedgroup"));

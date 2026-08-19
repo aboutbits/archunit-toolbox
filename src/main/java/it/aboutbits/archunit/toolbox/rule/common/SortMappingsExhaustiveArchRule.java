@@ -35,14 +35,11 @@ public interface SortMappingsExhaustiveArchRule {
                 .check(classes);
     }
 
-    /**
-     * Checks that every value of a Sort enum has a mapping.
-     * <p>
-     * Every case this cannot verify is reported as a violation rather than skipped. Reading a
-     * mapping requires reflection, and a mapping that cannot be read is indistinguishable from one
-     * that is exhaustive - so silence here means the rule quietly stops covering that field.
-     * </p>
-     */
+    /// Checks that every value of a Sort enum has a mapping.
+    ///
+    /// Every case this cannot verify is reported as a violation rather than skipped. Reading a
+    /// mapping requires reflection, and a mapping that cannot be read is indistinguishable from one
+    /// that is exhaustive - so silence here means the rule quietly stops covering that field.
     class HaveExhaustiveSortMappingsIfPresent extends ArchCondition<JavaClass> {
         public HaveExhaustiveSortMappingsIfPresent() {
             super("have SortMappings that map all values of the associated Sort enum");

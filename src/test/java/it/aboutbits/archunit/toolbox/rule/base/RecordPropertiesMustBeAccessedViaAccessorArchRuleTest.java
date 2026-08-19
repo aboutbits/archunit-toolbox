@@ -11,10 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @NullMarked
 class RecordPropertiesMustBeAccessedViaAccessorArchRuleTest {
-    /**
-     * Only reachable for a nested record: nestmates share access to private members, so the read
-     * compiles to a direct field access rather than an accessor call.
-     */
+    /// Only reachable for a nested record: nestmates share access to private members, so the read
+    /// compiles to a direct field access rather than an accessor call.
     @Test
     void a_direct_read_of_a_record_field_from_outside_the_record_is_reported() {
         var classes = fixture("recordaccessor.badnested");

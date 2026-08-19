@@ -22,10 +22,8 @@ class SortMappingsExhaustiveArchRuleTest implements SortMappingsExhaustiveArchRu
                 .hasMessageContaining("CREATED_AT");
     }
 
-    /**
-     * A non-static field cannot be read reflectively, so it used to be skipped with nothing but a
-     * discarded log warning.
-     */
+    /// A non-static field cannot be read reflectively, so it used to be skipped with nothing but a
+    /// discarded log warning.
     @Test
     void a_non_static_sort_mappings_field_is_reported() {
         var classes = fixture("sortmappings.badnonstatic");

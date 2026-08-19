@@ -42,10 +42,8 @@ class BlacklistAnnotationsArchRuleTest implements BlacklistAnnotationsArchRule {
         assertThat(failure).hasMessageContaining("Field value").hasMessageContaining("lombok.NonNull");
     }
 
-    /**
-     * The position that matters most in practice, and the one a rule looking only at getMethods()
-     * cannot see.
-     */
+    /// The position that matters most in practice, and the one a rule looking only at getMethods()
+    /// cannot see.
     @Test
     void a_blacklisted_annotation_on_a_constructor_parameter_is_reported() {
         var failure = violationOf(

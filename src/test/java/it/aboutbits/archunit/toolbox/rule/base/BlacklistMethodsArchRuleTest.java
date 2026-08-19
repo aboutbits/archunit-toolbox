@@ -30,7 +30,7 @@ class BlacklistMethodsArchRuleTest implements BlacklistMethodsArchRule {
                 .hasMessageContaining("assertThatThrownBy");
     }
 
-    /** An instance field initializer is compiled into the constructor, so it needs the same reach. */
+    /// An instance field initializer is compiled into the constructor, so it needs the same reach.
     @Test
     void a_blacklisted_call_from_an_instance_field_initializer_is_reported() {
         var failure = violationOf(() -> no_blacklisted_methods_are_used(fixture("blacklistmethods.badfieldinit")));
@@ -56,10 +56,8 @@ class BlacklistMethodsArchRuleTest implements BlacklistMethodsArchRule {
         no_blacklisted_methods_are_used(fixture("blacklistmethods.good"));
     }
 
-    /**
-     * A blacklist entry naming a method that does not exist can never match, so it reads as coverage
-     * without providing any.
-     */
+    /// A blacklist entry naming a method that does not exist can never match, so it reads as coverage
+    /// without providing any.
     @Test
     void the_blacklist_does_not_name_assertj_methods_that_do_not_exist() {
         assertThat(BLACKLISTED_METHODS)

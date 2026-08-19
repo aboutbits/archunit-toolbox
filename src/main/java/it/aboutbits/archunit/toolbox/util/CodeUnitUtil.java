@@ -11,14 +11,11 @@ public final class CodeUnitUtil {
     private CodeUnitUtil() {
     }
 
-    /**
-     * Human readable kind of a code unit, for violation messages.
-     * <p>
-     * Rules that inspect bodies must iterate {@code getCodeUnits()} rather than {@code getMethods()}:
-     * the latter excludes constructors, and an instance field initializer is compiled into the
-     * constructor, so both are invisible to a rule that only looks at methods.
-     * </p>
-     */
+    /// Human readable kind of a code unit, for violation messages.
+    ///
+    /// Rules that inspect bodies must iterate `getCodeUnits()` rather than `getMethods()`:
+    /// the latter excludes constructors, and an instance field initializer is compiled into the
+    /// constructor, so both are invisible to a rule that only looks at methods.
     public static String describeKind(JavaCodeUnit codeUnit) {
         return switch (codeUnit) {
             case JavaMethod _ -> "Method";

@@ -15,20 +15,16 @@ import static it.aboutbits.archunit.toolbox.RuleEvaluation.fixture;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-/**
- * A rule must not complain about code the project does not have.
- * <p>
- * Whether a project contains records, controllers, @Store classes or @Nested test classes is the
- * project's business, so every rule tolerates a selection that comes up empty. That each rule can
- * still fail is guaranteed by its own red test in this project, not by making consumers fail - an
- * empty selection says nothing about whether a rule's logic works. The counterpart rule proved that:
- * its selection was never empty, its condition was simply broken.
- * </p>
- * <p>
- * The one genuinely dangerous case, nothing imported at all, is covered by
- * AnalyzedPackagesMustContainClassesArchRule.
- * </p>
- */
+/// A rule must not complain about code the project does not have.
+///
+/// Whether a project contains records, controllers, `@Store` classes or `@Nested` test classes is the
+/// project's business, so every rule tolerates a selection that comes up empty. That each rule can
+/// still fail is guaranteed by its own red test in this project, not by making consumers fail - an
+/// empty selection says nothing about whether a rule's logic works. The counterpart rule proved that:
+/// its selection was never empty, its condition was simply broken.
+///
+/// The one genuinely dangerous case, nothing imported at all, is covered by
+/// AnalyzedPackagesMustContainClassesArchRule.
 @NullMarked
 @ArchIgnoreNoProductionCounterpart
 class EmptySelectionTest {

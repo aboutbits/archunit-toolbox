@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @NullMarked
 class ArchIgnoreGroupNameTest {
-    /** See ArchIgnoreNoProductionCounterpartTest: a meta @ArchIgnore skips arch tests wholesale. */
+    /// See ArchIgnoreNoProductionCounterpartTest: a meta `@ArchIgnore` skips arch tests wholesale.
     @Test
     void the_annotation_is_not_meta_annotated_with_arch_ignore() {
         assertThat(ArchIgnoreGroupName.class.isAnnotationPresent(ArchIgnore.class))

@@ -6,13 +6,10 @@ import org.jspecify.annotations.NullMarked;
 
 import java.util.regex.Pattern;
 
-/**
- * Imports a rule fixture and inspects what a rule reports about it.
- * <p>
- * Rules are invoked through their own {@code default} method, so a test exercises exactly what a
- * consumer gets, including the message text.
- * </p>
- */
+/// Imports a rule fixture and inspects what a rule reports about it.
+///
+/// Rules are invoked through their own `default` method, so a test exercises exactly what a
+/// consumer gets, including the message text.
 @NullMarked
 public final class RuleEvaluation {
     private static final String FIXTURE_ROOT = "it.aboutbits.archunit.fixture.";
@@ -21,10 +18,8 @@ public final class RuleEvaluation {
     private RuleEvaluation() {
     }
 
-    /**
-     * Imports one fixture package, failing loudly if it is empty: a mistyped package would otherwise
-     * make every assertion about it pass for the wrong reason.
-     */
+    /// Imports one fixture package, failing loudly if it is empty: a mistyped package would otherwise
+    /// make every assertion about it pass for the wrong reason.
     public static JavaClasses fixture(String subPackage) {
         var packageName = FIXTURE_ROOT + subPackage;
         var classes = new ClassFileImporter().importPackages(packageName);
@@ -36,7 +31,7 @@ public final class RuleEvaluation {
         return classes;
     }
 
-    /** An import that yielded nothing, as a consumer with a mistyped @AnalyzeClasses package gets. */
+    /// An import that yielded nothing, as a consumer with a mistyped `@AnalyzeClasses` package gets.
     public static JavaClasses noClassesImported() {
         var classes = new ClassFileImporter().importPackages(FIXTURE_ROOT + "nosuchpackage");
 
@@ -47,10 +42,8 @@ public final class RuleEvaluation {
         return classes;
     }
 
-    /**
-     * Runs a rule that is expected to report at least one violation and returns the failure.
-     * Failing here means the rule accepted a fixture that was built to violate it.
-     */
+    /// Runs a rule that is expected to report at least one violation and returns the failure.
+    /// Failing here means the rule accepted a fixture that was built to violate it.
     public static AssertionError violationOf(Runnable ruleCheck) {
         try {
             ruleCheck.run();
@@ -61,7 +54,7 @@ public final class RuleEvaluation {
         throw new AssertionError("Expected the rule to report a violation, but it reported success.");
     }
 
-    /** The number of violations ArchUnit reported, read back from its failure message. */
+    /// The number of violations ArchUnit reported, read back from its failure message.
     public static int violationCount(AssertionError failure) {
         var matcher = VIOLATION_COUNT.matcher(String.valueOf(failure.getMessage()));
 

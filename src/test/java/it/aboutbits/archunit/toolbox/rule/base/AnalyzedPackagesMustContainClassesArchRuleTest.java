@@ -11,10 +11,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 
 @NullMarked
 class AnalyzedPackagesMustContainClassesArchRuleTest implements AnalyzedPackagesMustContainClassesArchRule {
-    /**
-     * The one case every other rule deliberately tolerates: nothing was imported, so nothing can be
-     * checked and every rule would otherwise pass.
-     */
+    /// The one case every other rule deliberately tolerates: nothing was imported, so nothing can be
+    /// checked and every rule would otherwise pass.
     @Test
     void an_import_without_any_classes_is_reported() {
         var classes = noClassesImported();

@@ -109,11 +109,9 @@ public interface ControllerRequestMappingsMustBeSecurityTested {
             }
         }
 
-        /*
-         * The @Nested class named after the controller method, or a @Nested class grouped inside it
-         * (GetAll$WhenAdmin). Matching on a bare prefix would also accept an unrelated longer
-         * sibling, so getAll() would count as covered by a @Nested class named GetAllArchived.
-         */
+        /// The `@Nested` class named after the controller method, or a `@Nested` class grouped inside it
+        /// (GetAll$WhenAdmin). Matching on a bare prefix would also accept an unrelated longer
+        /// sibling, so getAll() would count as covered by a `@Nested` class named GetAllArchived.
         private static boolean isExpectedNestedClass(String candidateName, String expectedName) {
             return candidateName.equals(expectedName)
                     || candidateName.startsWith(expectedName + "$");
