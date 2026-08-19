@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static it.aboutbits.archunit.toolbox.util.CodeUnitUtil.describeKind;
 import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
@@ -22,9 +23,6 @@ public interface BlacklistMethodsArchRule {
             Set.of(
                     // We should use `assertThatExceptionOfType(...).isThrownBy(...)` instead of `assertThatThrownBy(...)`
                     "org.assertj.core.api.Assertions.assertThatThrownBy",
-                    "org.assertj.core.api.Assertions.assertThrows",
-                    "org.assertj.core.api.Assertions.assertThrowsExactly",
-                    "org.assertj.core.api.Assertions.assertDoesNotThrow",
                     "org.junit.jupiter.api.Assertions.assertThrows",
                     "org.junit.jupiter.api.Assertions.assertDoesNotThrow",
                     // assertThat (allowed is only org.assertj.core.api.Assertions.assertThat)
@@ -80,47 +78,30 @@ public interface BlacklistMethodsArchRule {
 
         @Override
         public void check(JavaClass javaClass, ConditionEvents events) {
-            // Check all method calls from this class
-            for (var method : javaClass.getMethods()) {
-                for (var methodCall : method.getMethodCallsFromSelf()) {
+            // getCodeUnits() covers methods, constructors and the static initializer. getMethods()
+            // would miss constructors, and with them every instance field initializer.
+            for (var codeUnit : javaClass.getCodeUnits()) {
+                for (var methodCall : codeUnit.getMethodCallsFromSelf()) {
                     var fullMethodName = "%s.%s".formatted(
                             methodCall.getTargetOwner().getFullName(),
                             methodCall.getTarget().getName()
                     );
 
-                    if (BLACKLISTED_METHODS.contains(fullMethodName)) {
-                        var message = String.format(
-                                "Method %s calls blacklisted method %s (%s.java:%d)",
-                                method.getFullName(),
-                                fullMethodName,
-                                javaClass.getSimpleName(),
-                                getLineNumber(methodCall)
-                        );
-                        events.add(SimpleConditionEvent.violated(method, message));
+                    if (!BLACKLISTED_METHODS.contains(fullMethodName)) {
+                        continue;
                     }
+
+                    var message = String.format(
+                            "%s %s calls blacklisted method %s (%s.java:%d)",
+                            describeKind(codeUnit),
+                            codeUnit.getFullName(),
+                            fullMethodName,
+                            javaClass.getSimpleName(),
+                            getLineNumber(methodCall)
+                    );
+                    events.add(SimpleConditionEvent.violated(codeUnit, message));
                 }
             }
-
-            // Check static initializers for method calls
-            javaClass.getStaticInitializer().ifPresent(staticInitializer -> {
-                for (var methodCall : staticInitializer.getMethodCallsFromSelf()) {
-                    var fullMethodName = "%s.%s".formatted(
-                            methodCall.getTargetOwner().getFullName(),
-                            methodCall.getTarget().getName()
-                    );
-
-                    if (BLACKLISTED_METHODS.contains(fullMethodName)) {
-                        var message = String.format(
-                                "Static initializer in %s calls blacklisted method %s (%s.java:%d)",
-                                javaClass.getFullName(),
-                                fullMethodName,
-                                javaClass.getSimpleName(),
-                                getLineNumber(methodCall)
-                        );
-                        events.add(SimpleConditionEvent.violated(staticInitializer, message));
-                    }
-                }
-            });
         }
     }
 }

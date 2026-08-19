@@ -9,6 +9,7 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.jspecify.annotations.NullMarked;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static it.aboutbits.archunit.toolbox.util.CodeUnitUtil.describeKind;
 import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
@@ -33,44 +34,27 @@ public interface NoSystemOutOrErrArchRule {
 
         @Override
         public void check(JavaClass javaClass, ConditionEvents events) {
-            checkCodeUnits(javaClass, events);
-            javaClass.getStaticInitializer().ifPresent(staticInitializer -> {
-                for (var fieldAccess : staticInitializer.getFieldAccesses()) {
-                    if (isSystemOutOrErr(
+            // getCodeUnits() covers methods, constructors and the static initializer. getMethods()
+            // would miss constructors, and with them every instance field initializer.
+            for (var codeUnit : javaClass.getCodeUnits()) {
+                for (var fieldAccess : codeUnit.getFieldAccesses()) {
+                    if (!isSystemOutOrErr(
                             fieldAccess.getTargetOwner().getFullName(),
                             fieldAccess.getTarget().getName()
                     )) {
-                        var message = String.format(
-                                "Static initializer in %s accesses %s.%s (%s.java:%d)",
-                                javaClass.getFullName(),
-                                SYSTEM_CLASS,
-                                fieldAccess.getTarget().getName(),
-                                javaClass.getSimpleName(),
-                                getLineNumber(fieldAccess)
-                        );
-                        events.add(SimpleConditionEvent.violated(staticInitializer, message));
+                        continue;
                     }
-                }
-            });
-        }
 
-        private void checkCodeUnits(JavaClass javaClass, ConditionEvents events) {
-            for (var method : javaClass.getMethods()) {
-                for (var fieldAccess : method.getFieldAccesses()) {
-                    if (isSystemOutOrErr(
-                            fieldAccess.getTargetOwner().getFullName(),
-                            fieldAccess.getTarget().getName()
-                    )) {
-                        var message = String.format(
-                                "Method %s accesses %s.%s (%s.java:%d)",
-                                method.getFullName(),
-                                SYSTEM_CLASS,
-                                fieldAccess.getTarget().getName(),
-                                javaClass.getSimpleName(),
-                                getLineNumber(fieldAccess)
-                        );
-                        events.add(SimpleConditionEvent.violated(method, message));
-                    }
+                    var message = String.format(
+                            "%s %s accesses %s.%s (%s.java:%d)",
+                            describeKind(codeUnit),
+                            codeUnit.getFullName(),
+                            SYSTEM_CLASS,
+                            fieldAccess.getTarget().getName(),
+                            javaClass.getSimpleName(),
+                            getLineNumber(fieldAccess)
+                    );
+                    events.add(SimpleConditionEvent.violated(codeUnit, message));
                 }
             }
         }

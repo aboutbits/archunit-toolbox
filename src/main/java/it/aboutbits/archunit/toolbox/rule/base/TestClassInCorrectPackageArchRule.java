@@ -6,10 +6,10 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import it.aboutbits.archunit.toolbox.util.TestClassNames;
 import org.jspecify.annotations.NullMarked;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static it.aboutbits.archunit.toolbox.config.ArchRuleConfig.TEST_CLASS_SUFFIXES;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
 @NullMarked
@@ -17,10 +17,7 @@ public interface TestClassInCorrectPackageArchRule {
     @SuppressWarnings({"unused", "checkstyle:MethodName", "java:S100"})
     @ArchTest
     default void test_classes_should_be_in_the_same_package_as_their_production_code(JavaClasses classes) {
-        classes().that()
-                .haveNameMatching(".+(" + String.join("|", TEST_CLASS_SUFFIXES) + ")$")
-                .and()
-                .doNotHaveSimpleName("ArchitectureTest")
+        classes().that(TestClassNames.testClasses())
                 .and()
                 .areNotAnnotatedWith(org.junit.jupiter.api.Disabled.class)
                 .and()
@@ -30,7 +27,6 @@ public interface TestClassInCorrectPackageArchRule {
                 .and()
                 .resideOutsideOfPackages(".._support..", ".._config..")
                 .should(new BeInTheSamePackageAsTheProductionClass(classes))
-                .allowEmptyShould(true)
                 .check(classes);
     }
 
@@ -44,18 +40,15 @@ public interface TestClassInCorrectPackageArchRule {
 
         @Override
         public void check(JavaClass testClass, ConditionEvents events) {
-            var testClassSuffixRegex = "(" + String.join("|", TEST_CLASS_SUFFIXES) + ")$";
-
-            var testClassName = testClass.getSimpleName();
-            if (!testClassName.matches(testClassSuffixRegex)) {
-                return;
-            }
-
-            // Derive the production class name
-            var productionClassSimpleName = testClassName.replaceAll(testClassSuffixRegex, "");
+            /*
+             * No suffix guard here on purpose. The selection above already guarantees the suffix,
+             * and re-deriving it in the condition is what previously disabled this rule outright:
+             * the guard rebuilt the regex without the leading ".+", and String.matches anchors both
+             * ends, so every test class returned before ever looking for its production class.
+             */
+            var productionClassSimpleName = TestClassNames.productionClassSimpleName(testClass.getSimpleName());
             var productionClassFullName = testClass.getPackageName() + "." + productionClassSimpleName;
 
-            // Check if the production class exists in the same package
             var productionClass = allClasses.stream()
                     .filter(clazz -> clazz.getFullName().equals(productionClassFullName))
                     .findFirst();
