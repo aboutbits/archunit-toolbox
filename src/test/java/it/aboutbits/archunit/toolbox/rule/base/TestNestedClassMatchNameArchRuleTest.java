@@ -46,6 +46,13 @@ class TestNestedClassMatchNameArchRuleTest implements TestNestedClassMatchNameAr
                 .hasMessageContaining("does not have a matching production class");
     }
 
+    /// Pins that a production class nested inside another is found: its fully qualified name
+    /// contains a '$', and the lookup is by that name.
+    @Test
+    void a_nested_group_matching_a_production_nested_class_is_accepted() {
+        nested_test_classes_have_matching_production_method_name(fixture("nestedclassname.goodgroup"));
+    }
+
     @Test
     void a_nested_test_class_matching_a_production_method_is_accepted() {
         nested_test_classes_have_matching_production_method_name(fixture("nestedclassname.good"));

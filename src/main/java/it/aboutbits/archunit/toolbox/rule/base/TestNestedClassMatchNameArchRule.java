@@ -122,16 +122,15 @@ public interface TestNestedClassMatchNameArchRule {
                         enclosingClassSuffix.orElse("")
                 );
 
-                var productionClassOptional = allClasses.stream()
-                        .filter(clazz -> clazz.getFullName().equals(productionClassName))
-                        .findFirst();
-
                 /*
                  * Reported whether or not the @Nested class is inside a @Nested group. Without a
                  * production class there is nothing to match the name against, so staying silent
                  * here means the @Nested class is never checked at all.
+                 *
+                 * JavaClasses is map-backed by fully qualified name, so this is a lookup rather than
+                 * a scan of every imported class per @Nested class.
                  */
-                if (productionClassOptional.isEmpty()) {
+                if (!allClasses.contain(productionClassName)) {
                     var message = "The @Nested test class <%s> (%s.java:%s)%ndoes not have a matching production class <%s>".formatted(
                             nestedClass.getName(),
                             nestedClassBaseClassSimpleName,
@@ -140,7 +139,7 @@ public interface TestNestedClassMatchNameArchRule {
                     );
                     events.add(SimpleConditionEvent.violated(nestedClass, message));
                 } else {
-                    var productionClass = productionClassOptional.get();
+                    var productionClass = allClasses.get(productionClassName);
 
                     var methodExists = productionClass.getMethods()
                             .stream()

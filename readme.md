@@ -16,6 +16,25 @@ Add this library to the classpath by adding the following maven dependency. Vers
 </dependency>
 ```
 
+## Upgrading to 1.3.0
+
+**This release will fail builds that passed on 1.2.0, on purpose.** Nine rules were silently
+reporting success because they matched nothing; fixing them turns real violations into build
+failures for the first time. Expect two kinds:
+
+- **Revived rules surface real violations.** Chiefly the two that were fully dead:
+  `test_classes_should_be_in_the_same_package_as_their_production_code` and
+  `nested_test_classes_have_matching_production_method_name`. Triage them with the opt-out
+  stereotype described under [Opting out](#opting-out) before annotating classes one at a time.
+  The stricter paths (`getCodeUnits()` reaching constructors and field initializers, exact
+  security-test matching, `SortMappings` reporting what it cannot read) surfaced nothing in a
+  large codebase, so noise from those is unlikely.
+- **`analyzed_packages_must_contain_classes` is new and fails on an empty import.** If the
+  packages given to `@AnalyzeClasses` are mistyped or have moved, that is now a failure instead
+  of 13 rules quietly passing.
+
+Nothing else needs a migration: no rule fails over code your project does not have.
+
 ## Usage
 
 Implement one of the provided rule collections in your own architecture test.
@@ -89,6 +108,12 @@ public @interface BusinessTest {
 
 Annotating a single class directly still works — ArchUnit counts a direct annotation as
 meta-annotated.
+
+The same applies to `@Disabled` and ArchUnit's `@ArchIgnore`, which these rules also honour: a
+stereotype that carries either of them exempts every class using it. That matches how JUnit and the
+ArchUnit engine themselves read those two annotations — a class whose tests do not run is not held to
+naming rules — but it does mean a stereotype can exempt more than it appears to, so keep an eye on
+what your own test annotations carry.
 
 Architecture tests need neither: any class in a package named `_architecture` is exempt from the
 production-counterpart rule, alongside the existing `_support` and `_config` exclusions. Use the

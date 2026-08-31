@@ -61,11 +61,9 @@ public interface TestClassInCorrectPackageArchRule {
             var productionClassSimpleName = TestClassNames.productionClassSimpleName(testClass.getSimpleName());
             var productionClassFullName = testClass.getPackageName() + "." + productionClassSimpleName;
 
-            var productionClass = allClasses.stream()
-                    .filter(clazz -> clazz.getFullName().equals(productionClassFullName))
-                    .findFirst();
-
-            if (productionClass.isEmpty()) {
+            // JavaClasses is map-backed by fully qualified name, so this is a lookup rather than a
+            // scan of every imported class per test class.
+            if (!allClasses.contain(productionClassFullName)) {
                 var message = "Test class <%s> does not have a matching production class <%s> in the same package (%s.java:0)".formatted(
                         testClass.getFullName(),
                         productionClassFullName,
