@@ -18,10 +18,9 @@ public interface AnalyzedPackagesMustContainClassesArchRule {
     @ArchTest
     default void analyzed_packages_must_contain_classes(JavaClasses classes) {
         if (classes.isEmpty()) {
-            throw new AssertionError(
-                    "No classes were imported, so none of the architecture rules checked anything. "
-                            + "Verify the packages passed to @AnalyzeClasses."
-            );
+            throw new AssertionError("""
+                    No classes were imported, so none of the architecture rules checked anything.
+                    Verify the packages passed to @AnalyzeClasses.""");
         }
     }
 }
