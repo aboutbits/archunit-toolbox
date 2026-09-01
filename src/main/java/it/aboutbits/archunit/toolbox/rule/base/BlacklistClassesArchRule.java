@@ -35,6 +35,7 @@ public interface BlacklistClassesArchRule {
                             }
                         }
                 )
+                .allowEmptyShould(true)
                 .check(classes);
     }
 }

@@ -1,5 +1,6 @@
 package it.aboutbits.archunit.toolbox;
 
+import it.aboutbits.archunit.toolbox.rule.base.AnalyzedPackagesMustContainClassesArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.BlacklistAnnotationsArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.BlacklistClassesArchRule;
 import it.aboutbits.archunit.toolbox.rule.base.BlacklistMethodsArchRule;
@@ -15,6 +16,7 @@ import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public interface BaseArchRuleCollection extends
+        AnalyzedPackagesMustContainClassesArchRule,
         BlacklistAnnotationsArchRule,
         BlacklistClassesArchRule,
         BlacklistMethodsArchRule,

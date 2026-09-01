@@ -7,12 +7,12 @@ import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import it.aboutbits.archunit.toolbox.util.TestClassNames;
 import org.jspecify.annotations.NullMarked;
 
 import java.util.stream.Collectors;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
-import static it.aboutbits.archunit.toolbox.config.ArchRuleConfig.TEST_CLASS_SUFFIXES;
 import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
@@ -21,12 +21,17 @@ public interface TestNestedClassMatchNameArchRule {
     @SuppressWarnings({"unused", "checkstyle:MethodName", "java:S100"})
     @ArchTest
     default void nested_test_classes_have_matching_production_method_name(JavaClasses classes) {
-        classes().that()
-                .haveNameMatching(".+(" + String.join("|", TEST_CLASS_SUFFIXES) + ")$")
+        classes().that(TestClassNames.testClasses())
                 .and()
-                .areNotAnnotatedWith(org.junit.jupiter.api.Disabled.class)
+                .areNotMetaAnnotatedWith(org.junit.jupiter.api.Disabled.class)
                 .and()
-                .areNotAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
+                .areNotMetaAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
+                .and()
+                /*
+                 * A test class that declares it has no production counterpart has no production
+                 * methods to match its @Nested classes against either.
+                 */
+                .areNotMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreNoProductionCounterpart.class)
                 .should(new HaveNestedClassesThatHaveAMatchingProductionMethodName(classes))
                 .allowEmptyShould(true)
                 .check(classes);
@@ -48,7 +53,7 @@ public interface TestNestedClassMatchNameArchRule {
                     .stream()
                     .filter(clazz -> clazz.getName().startsWith(testClass.getName() + "$")
                             && clazz.isAnnotatedWith(org.junit.jupiter.api.Nested.class)
-                            && !clazz.isAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
+                            && !clazz.isMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
                             && !clazz.getName().endsWith("$Validation")
                     )
                     .collect(Collectors.toSet());
@@ -78,7 +83,7 @@ public interface TestNestedClassMatchNameArchRule {
                         .stream()
                         .anyMatch(clazz -> clazz.getName().startsWith(nestedClass.getName() + "$")
                                 && clazz.isAnnotatedWith(org.junit.jupiter.api.Nested.class)
-                                && !clazz.isAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
+                                && !clazz.isMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
                                 && !clazz.getName().endsWith("$Validation")
                         )
                 ) {
@@ -113,16 +118,19 @@ public interface TestNestedClassMatchNameArchRule {
 
                 var productionClassName = "%s.%s%s".formatted(
                         testClass.getPackageName(),
-                        testClass.getSimpleName()
-                                .replaceAll("(" + String.join("|", TEST_CLASS_SUFFIXES) + ")$", ""),
+                        TestClassNames.productionClassSimpleName(testClass.getSimpleName()),
                         enclosingClassSuffix.orElse("")
                 );
 
-                var productionClassOptional = allClasses.stream()
-                        .filter(clazz -> clazz.getFullName().equals(productionClassName))
-                        .findFirst();
-
-                if (productionClassOptional.isEmpty() && enclosingClassSuffix.isPresent()) {
+                /*
+                 * Reported whether or not the @Nested class is inside a @Nested group. Without a
+                 * production class there is nothing to match the name against, so staying silent
+                 * here means the @Nested class is never checked at all.
+                 *
+                 * JavaClasses is map-backed by fully qualified name, so this is a lookup rather than
+                 * a scan of every imported class per @Nested class.
+                 */
+                if (!allClasses.contain(productionClassName)) {
                     var message = "The @Nested test class <%s> (%s.java:%s)%ndoes not have a matching production class <%s>".formatted(
                             nestedClass.getName(),
                             nestedClassBaseClassSimpleName,
@@ -130,10 +138,8 @@ public interface TestNestedClassMatchNameArchRule {
                             productionClassName
                     );
                     events.add(SimpleConditionEvent.violated(nestedClass, message));
-                }
-
-                if (productionClassOptional.isPresent()) {
-                    var productionClass = productionClassOptional.get();
+                } else {
+                    var productionClass = allClasses.get(productionClassName);
 
                     var methodExists = productionClass.getMethods()
                             .stream()

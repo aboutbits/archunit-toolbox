@@ -21,6 +21,7 @@ public interface EnforceJspecifyArchRule {
                 .beAnnotatedWith(org.jspecify.annotations.NullMarked.class)
                 .orShould()
                 .beAnnotatedWith(org.jspecify.annotations.NullUnmarked.class)
+                .allowEmptyShould(true)
                 .check(classes);
     }
 }

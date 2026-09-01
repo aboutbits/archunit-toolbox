@@ -1,20 +1,17 @@
 package it.aboutbits.archunit.toolbox.support;
 
-import com.tngtech.archunit.junit.ArchIgnore;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Use this annotation to ignore a group of tests in the architecture check.
- * <p>
- * This annotation should be used on a @Nested test class.
- * </p>
- */
+/// Marks a test class that has no matching counterpart in the production code, for example a
+/// scenario test named after the behaviour it describes.
+///
+/// Must not be meta-annotated with ArchUnit's `@ArchIgnore`: the ArchUnit JUnit engine resolves
+/// meta-annotations, so that would skip every `@ArchTest` on the annotated class instead of
+/// exempting it from a single rule. The rules read this annotation by its own type.
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@ArchIgnore(reason = "This test class has no matching counterpart in the production code.")
 public @interface ArchIgnoreNoProductionCounterpart {
 }

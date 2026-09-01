@@ -44,6 +44,7 @@ public interface ControllerRequestMappingsMustBeSecurityTested {
                     }
                 })
                 .should(new BeSecurityTested())
+                .allowEmptyShould(true)
                 .check(classes);
     }
 
@@ -80,17 +81,18 @@ public interface ControllerRequestMappingsMustBeSecurityTested {
                 return;
             }
 
+            var expectedNestedClassName = "%s$%s".formatted(
+                    securityTestClass.getName(),
+                    expectedNestedMethodClassName
+            );
+
             var nestedMethodTestClassFound = securityTestClass.getPackage()
                     .getClasses()
                     .stream()
-                    .anyMatch(clazz -> clazz.getName()
-                            .startsWith("%s$%s".formatted(
-                                    securityTestClass.getName(),
-                                    expectedNestedMethodClassName
-                            ))
+                    .anyMatch(clazz -> isExpectedNestedClass(clazz.getName(), expectedNestedClassName)
                             && clazz.isAnnotatedWith(org.junit.jupiter.api.Nested.class)
-                            && !clazz.isAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
-                            && !clazz.isAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
+                            && !clazz.isMetaAnnotatedWith(com.tngtech.archunit.junit.ArchIgnore.class)
+                            && !clazz.isMetaAnnotatedWith(it.aboutbits.archunit.toolbox.support.ArchIgnoreGroupName.class)
                     );
 
             if (!nestedMethodTestClassFound) {
@@ -105,6 +107,14 @@ public interface ControllerRequestMappingsMustBeSecurityTested {
                         )
                 ));
             }
+        }
+
+        /// The `@Nested` class named after the controller method, or a `@Nested` class grouped inside it
+        /// (GetAll$WhenAdmin). Matching on a bare prefix would also accept an unrelated longer
+        /// sibling, so getAll() would count as covered by a `@Nested` class named GetAllArchived.
+        private static boolean isExpectedNestedClass(String candidateName, String expectedName) {
+            return candidateName.equals(expectedName)
+                    || candidateName.startsWith(expectedName + "$");
         }
     }
 }

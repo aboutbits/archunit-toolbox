@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static it.aboutbits.archunit.toolbox.util.CodeUnitUtil.describeKind;
 import static it.aboutbits.archunit.toolbox.util.LineNumberUtil.getLineNumber;
 
 @SuppressWarnings({"checkstyle:InterfaceIsType", "java:S1214"})
@@ -63,6 +64,7 @@ public interface BlacklistAnnotationsArchRule {
     default void no_blacklisted_annotations_are_used(JavaClasses classes) {
         classes()
                 .should(new NotUseBlacklistedAnnotations())
+                .allowEmptyShould(true)
                 .check(classes);
     }
 
@@ -87,33 +89,36 @@ public interface BlacklistAnnotationsArchRule {
                 }
             }
 
-            // Check annotations on methods and their parameters
-            for (var method : javaClass.getMethods()) {
-                // Check method annotations
-                for (var annotation : method.getAnnotations()) {
+            // getCodeUnits() covers methods, constructors and the static initializer. getMethods()
+            // would miss constructors, and with them the most common position of all: a blacklisted
+            // annotation on a constructor parameter.
+            for (var codeUnit : javaClass.getCodeUnits()) {
+                for (var annotation : codeUnit.getAnnotations()) {
                     if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
                         var message = String.format(
-                                "Method %s is annotated with blacklisted annotation @%s (%s.java:%d)",
-                                method.getFullName(),
+                                "%s %s is annotated with blacklisted annotation @%s (%s.java:%d)",
+                                describeKind(codeUnit),
+                                codeUnit.getFullName(),
                                 annotation.getRawType().getFullName(),
                                 javaClass.getSimpleName(),
-                                getLineNumber(method)
+                                getLineNumber(codeUnit)
                         );
-                        events.add(SimpleConditionEvent.violated(method, message));
+                        events.add(SimpleConditionEvent.violated(codeUnit, message));
                     }
                 }
-                // Check method parameter annotations
-                for (var parameter : method.getParameters()) {
+
+                for (var parameter : codeUnit.getParameters()) {
                     for (var annotation : parameter.getAnnotations()) {
                         if (BLACKLISTED_ANNOTATIONS.contains(annotation.getRawType().getFullName())) {
                             var message = String.format(
-                                    "Parameter %s of method %s is annotated with blacklisted annotation @%s (%s.java:%d)",
+                                    "Parameter %s of %s %s is annotated with blacklisted annotation @%s (%s.java:%d)",
                                     parameter.getIndex(),
-                                    method.getFullName(),
+                                    describeKind(codeUnit).toLowerCase(java.util.Locale.ROOT),
+                                    codeUnit.getFullName(),
                                     annotation.getRawType().getFullName(),
                                     javaClass.getSimpleName(),
-                                    getLineNumber(method)
-                            ); // Parameter doesn't have its own SLOC, use method's
+                                    getLineNumber(codeUnit)
+                            ); // Parameter doesn't have its own SLOC, use the code unit's
                             events.add(SimpleConditionEvent.violated(parameter, message));
                         }
                     }
