@@ -6,6 +6,8 @@ Common ArchUnit tooling for Java / Spring Boot projects.
 
 Add this library to the classpath by adding the following maven dependency. Versions can be found [here](../../packages)
 
+Upgrade notes for each version are in the [GitHub releases](../../releases).
+
 ```xml
 
 <dependency>
@@ -15,25 +17,6 @@ Add this library to the classpath by adding the following maven dependency. Vers
     <scope>test</scope>
 </dependency>
 ```
-
-## Upgrading to 1.3.0
-
-**This release will fail builds that passed on 1.2.0, on purpose.** Nine rules were silently
-reporting success because they matched nothing; fixing them turns real violations into build
-failures for the first time. Expect two kinds:
-
-- **Revived rules surface real violations.** Chiefly the two that were fully dead:
-  `test_classes_should_be_in_the_same_package_as_their_production_code` and
-  `nested_test_classes_have_matching_production_method_name`. Triage them with the opt-out
-  stereotype described under [Opting out](#opting-out) before annotating classes one at a time.
-  The stricter paths (`getCodeUnits()` reaching constructors and field initializers, exact
-  security-test matching, `SortMappings` reporting what it cannot read) surfaced nothing in a
-  large codebase, so noise from those is unlikely.
-- **`analyzed_packages_must_contain_classes` is new and fails on an empty import.** If the
-  packages given to `@AnalyzeClasses` are mistyped or have moved, that is now a failure instead
-  of 13 rules quietly passing.
-
-Nothing else needs a migration: no rule fails over code your project does not have.
 
 ## Usage
 
