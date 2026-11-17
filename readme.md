@@ -16,6 +16,17 @@ Add this library to the classpath by adding the following maven dependency. Vers
 </dependency>
 ```
 
+## Upgrading from 1.4.0
+
+The release after 1.4.0 brings `archunit-junit6` and `archunit-junit6-api` instead of
+`archunit-junit5` and `archunit-junit5-api`. Both contain the same API classes and the same test
+engine, so a classpath must never hold both:
+
+- Remove `archunit-junit5`, `archunit-junit5-api` and `archunit-junit5-engine` from your build.
+  If you declare ArchUnit yourself, use `archunit-junit6` and `archunit-junit6-api`.
+- Check that no `archunit-junit5` artifact is left, also as a transitive dependency, with
+  `mvn dependency:tree` or `./gradlew dependencyInsight --dependency archunit-junit5`.
+
 ## Upgrading to 1.3.0
 
 **This release will fail builds that passed on 1.2.0, on purpose.** Nine rules were silently
