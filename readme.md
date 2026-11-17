@@ -24,8 +24,10 @@ engine, so a classpath must never hold both:
 
 - Remove `archunit-junit5`, `archunit-junit5-api` and `archunit-junit5-engine` from your build.
   If you declare ArchUnit yourself, use `archunit-junit6` and `archunit-junit6-api`.
-- Check that no `archunit-junit5` artifact is left, also as a transitive dependency, with
-  `mvn dependency:tree` or `./gradlew dependencyInsight --dependency archunit-junit5`.
+- Check that no `archunit-junit5` artifact is left on the test classpath, also as a transitive
+  dependency. With Maven, use `mvn dependency:tree`. With Gradle, run the check in the module that
+  has the tests, for example
+  `./gradlew :application:dependencyInsight --configuration testRuntimeClasspath --dependency archunit-junit5`.
 
 ## Upgrading to 1.3.0
 
