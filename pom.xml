@@ -13,6 +13,13 @@
     <artifactId>archunit-toolbox</artifactId>
     <version>1.4.0</version>
     <description>Common ArchUnit tooling for Java / Spring Boot projects.</description>
+    <url>https://github.com/aboutbits/archunit-toolbox</url>
+
+    <scm>
+        <url>https://github.com/aboutbits/archunit-toolbox</url>
+        <connection>scm:git:https://github.com/aboutbits/archunit-toolbox.git</connection>
+        <developerConnection>scm:git:git@github.com:aboutbits/archunit-toolbox.git</developerConnection>
+    </scm>
 
     <properties>
         <java.version>25</java.version>
