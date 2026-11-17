@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -16,8 +16,8 @@
 
     <properties>
         <java.version>25</java.version>
-        <errorprone.version>2.49.0</errorprone.version>
-        <nullaway.version>0.13.4</nullaway.version>
+        <errorprone.version>2.52.0</errorprone.version>
+        <nullaway.version>0.14.4</nullaway.version>
     </properties>
 
     <dependencies>
@@ -42,12 +42,12 @@
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5</artifactId>
-            <version>1.4.2</version>
+            <version>1.5.1</version>
         </dependency>
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5-api</artifactId>
-            <version>1.4.2</version>
+            <version>1.5.1</version>
             <scope>compile</scope>
         </dependency>
 
@@ -83,7 +83,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.15.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -163,7 +162,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>13.4.1</version>
+                        <version>13.8.0</version>
                     </dependency>
                     <dependency>
                         <groupId>it.aboutbits</groupId>
