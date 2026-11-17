@@ -15,6 +15,26 @@
     <description>Common ArchUnit tooling for Java / Spring Boot projects.</description>
     <url>https://github.com/aboutbits/archunit-toolbox</url>
 
+    <organization>
+        <name>About Bits GmbH</name>
+        <url>https://aboutbits.it</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://github.com/aboutbits/archunit-toolbox/blob/main/license.md</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>About Bits GmbH</name>
+            <organization>About Bits GmbH</organization>
+            <organizationUrl>https://aboutbits.it</organizationUrl>
+        </developer>
+    </developers>
+
     <scm>
         <url>https://github.com/aboutbits/archunit-toolbox</url>
         <connection>scm:git:https://github.com/aboutbits/archunit-toolbox.git</connection>
