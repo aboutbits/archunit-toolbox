@@ -6,6 +6,8 @@ Common ArchUnit tooling for Java / Spring Boot projects.
 
 Add this library to the classpath by adding the following maven dependency. Versions can be found [here](../../packages)
 
+Upgrade notes for each version are in the [GitHub releases](../../releases).
+
 ```xml
 
 <dependency>
